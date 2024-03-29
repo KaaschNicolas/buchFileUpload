@@ -35,6 +35,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MailService } from '../../mail/mail.service.js';
 import { Titel } from '../entity/titel.entity.js';
 import { getLogger } from '../../logger/logger.js';
+import { DatabaseFile } from '../entity/databaseFile.entity.js';
 
 /** Typdefinitionen zum Aktualisieren eines Buches mit `update`. */
 export interface UpdateParams {
@@ -56,6 +57,8 @@ export class BuchWriteService {
 
     readonly #repo: Repository<Buch>;
 
+    readonly #fileRepo: Repository<DatabaseFile>;
+
     readonly #readService: BuchReadService;
 
     readonly #mailService: MailService;
@@ -64,10 +67,12 @@ export class BuchWriteService {
 
     constructor(
         @InjectRepository(Buch) repo: Repository<Buch>,
+        @InjectRepository(DatabaseFile) fileRepo: Repository<DatabaseFile>,
         readService: BuchReadService,
         mailService: MailService,
     ) {
         this.#repo = repo;
+        this.#fileRepo = fileRepo;
         this.#readService = readService;
         this.#mailService = mailService;
     }
@@ -88,6 +93,28 @@ export class BuchWriteService {
         await this.#sendmail(buchDb);
 
         return buchDb.id!;
+    }
+
+    async addFile(buchId: number, dataBuffer: Buffer, filename: string) {
+        this.#logger.debug('addFile: filename:%s', filename);
+        
+        const buch = await this.#readService.findById({ id: buchId });
+
+        const newFile = await this.#fileRepo.create({
+            filename,
+            data: dataBuffer,
+        });
+        const fileDb = await this.#fileRepo.save(newFile);
+        this.#logger.debug('addFile: databaseFile:%o', fileDb);
+        
+        
+        const updatedBuch = await this.#repo.save({
+            id: buch.id,
+            databaseFile: fileDb,
+        });
+        this.#logger.debug('addFile: buchId:%s', updatedBuch.id);
+        
+        return newFile;
     }
 
     /**

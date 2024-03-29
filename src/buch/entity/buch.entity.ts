@@ -54,6 +54,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { DecimalTransformer } from './decimal-transformer.js';
 import { Titel } from './titel.entity.js';
 import { dbType } from '../../config/db.js';
+import { DatabaseFile } from './databaseFile.entity.js';
 
 /**
  * Alias-Typ für gültige Strings bei der Art eines Buches.
@@ -147,6 +148,15 @@ export class Buch {
         type: dbType === 'sqlite' ? 'datetime' : 'timestamp',
     })
     readonly aktualisiert: Date | undefined;
+
+    @OneToOne(
+        () => DatabaseFile,
+        (databaseFile) => databaseFile.buch,
+        {
+        nullable: true
+        }
+    )
+    readonly file?: DatabaseFile;
 
     public toString = (): string =>
         JSON.stringify({

@@ -45,11 +45,12 @@ import {
     Put,
     Req,
     Res,
+    UploadedFile,
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
 import { BuchDTO, BuchDtoOhneRef } from './buchDTO.entity.js';
-import { Request, Response } from 'express';
+import { Express, Response, Request } from 'express';
 import { type Abbildung } from '../entity/abbildung.entity.js';
 import { type Buch } from '../entity/buch.entity.js';
 import { BuchWriteService } from '../service/buch-write.service.js';
@@ -111,6 +112,19 @@ export class BuchWriteController {
         const location = `${getBaseUri(req)}/${id}`;
         this.#logger.debug('post: location=%s', location);
         return res.location(location).send();
+    }
+
+    @Post()
+    @Roles({ roles: ['admin', 'user']})
+    @ApiOperation({ summary: 'Datei zu Bild hochladen' })
+    @ApiCreatedResponse({ description: 'Erfolgreich hinzugefügt' })
+    @ApiBadRequestResponse({ description: 'Fehlerhafte Datie'})
+    @ApiForbiddenResponse({ description: MSG_FORBIDDEN })
+    async addFile(
+        @Param('id') id: number,
+        @UploadedFile() file: Express.Multer.File
+    ) {
+        return await this.#service.addFile(id, file.buffer, file.originalname);
     }
 
     /**

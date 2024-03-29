@@ -17,7 +17,8 @@
 
 import { Abbildung } from './abbildung.entity.js';
 import { Buch } from './buch.entity.js';
+import { DatabaseFile } from './databaseFile.entity.js';
 import { Titel } from './titel.entity.js';
 
 // erforderlich in src/config/db.ts und src/buch/buch.module.ts
-export const entities = [Abbildung, Buch, Titel];
+export const entities = [Abbildung, Buch, Titel, DatabaseFile];

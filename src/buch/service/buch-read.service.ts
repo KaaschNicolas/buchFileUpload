@@ -25,6 +25,9 @@ import { Buch } from './../entity/buch.entity.js';
 import { QueryBuilder } from './query-builder.js';
 import { type Suchkriterien } from './suchkriterien.js';
 import { getLogger } from '../../logger/logger.js';
+import { Repository } from 'typeorm';
+import { DatabaseFile } from '../entity/databaseFile.entity.js';
+import { InjectRepository } from '@nestjs/typeorm';
 
 /**
  * Typdefinition für `findById`
@@ -50,10 +53,16 @@ export class BuchReadService {
 
     readonly #logger = getLogger(BuchReadService.name);
 
-    constructor(queryBuilder: QueryBuilder) {
-        const buchDummy = new Buch();
-        this.#buchProps = Object.getOwnPropertyNames(buchDummy);
+    readonly #fileRepo: Repository<DatabaseFile>;
+
+    constructor(
+        queryBuilder: QueryBuilder,
+        @InjectRepository(DatabaseFile) fileRepo : Repository<DatabaseFile>,
+    ) {
+        //const buchDummy = new Buch();
+        this.#buchProps = Object.getOwnPropertyNames(new Buch()); //TODO hier Objekt direkt erzeugen?
         this.#queryBuilder = queryBuilder;
+        this.#fileRepo = fileRepo;
     }
 
     // Rueckgabetyp Promise bei asynchronen Funktionen
@@ -106,6 +115,18 @@ export class BuchReadService {
             }
         }
         return buch;
+    }
+
+    async getFileById(fileId: number) {
+        const file = await this.#fileRepo.findOne({where: {
+            id : fileId
+        }});
+
+        if (!file) {
+            throw new NotFoundException();
+        }
+
+        return file;
     }
 
     /**

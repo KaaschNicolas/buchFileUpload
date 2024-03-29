@@ -82,4 +82,12 @@ CREATE TABLE IF NOT EXISTS abbildung (
     content_type    varchar(16) NOT NULL,
     buch_id         integer NOT NULL REFERENCES buch
 ) TABLESPACE buchspace;
+
+CREATE TABLE IF NOT EXISTS databaseFile (
+    id              integer GENERATED ALWAYS AS IDENTITY(START WITH 1000) PRIMARY KEY USING INDEX TABLESPACE buchspace,
+    data            bytea NOT NULL,
+    filename        varchar(100) NOT NULL,
+    buch_id         integer REFERENCES buch
+) TABLESPACE buchspace;
+
 CREATE INDEX IF NOT EXISTS abbildung_buch_id_idx ON abbildung(buch_id) TABLESPACE buchspace;

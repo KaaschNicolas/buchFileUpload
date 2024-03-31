@@ -153,7 +153,6 @@ export class Buch {
         () => DatabaseFile,
         (databaseFile) => databaseFile.buch,
         {
-            nullable: true,
             cascade: ['insert', 'remove'],
         },
     )

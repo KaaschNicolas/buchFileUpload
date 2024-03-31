@@ -105,14 +105,12 @@ export class BuchWriteService {
             data: dataBuffer,
             buch: buch,
         });
-        this.#logger.debug('newFile buch:%o', newFile.buch?.file);
-        const updatedBuch = await this.#repo.save({
+
+        await this.#repo.save({
             id: buch.id,
             databaseFile: newFile,
         });
-        this.#logger.debug('addFile: buchId:%s', updatedBuch.id);
-        const buch1 = await this.#readService.findById({ id: buchId });
-        this.#logger.debug('buch1 file:%o', buch1.file);
+
         return newFile;
     }
 

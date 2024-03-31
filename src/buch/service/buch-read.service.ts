@@ -118,19 +118,24 @@ export class BuchReadService {
     }
 
     async findFileByBuchId(buchId: number) {
-
+        this.#logger.debug('findFileByBuchId: buchId=%s', buchId);
+        /** 
         const buch = await this.findById({ id: buchId });
-        this.#logger.debug(buch.file);
-        const file = await this.#fileRepo.findOne({where: {
-            buch : { id: buchId }
+
+        const file = await this.#fileRepo.find({where: {
+            buch : buch
+        },
+        relations: {
+            buch: true,
         },
         });
 
         if (file === null) {
             throw new NotFoundException();
         }
-
-        return file;
+        */
+        const file = await this.#fileRepo.find();
+        return file[0];
     }
 
     /**

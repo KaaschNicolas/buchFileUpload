@@ -65,7 +65,8 @@ CREATE TABLE IF NOT EXISTS buch (
     schlagwoerter varchar(64),
                   -- https://www.postgresql.org/docs/current/datatype-datetime.html
     erzeugt       timestamp NOT NULL DEFAULT NOW(),
-    aktualisiert  timestamp NOT NULL DEFAULT NOW()
+    aktualisiert  timestamp NOT NULL DEFAULT NOW(),
+    file          bytea 
 ) TABLESPACE buchspace;
 
 CREATE TABLE IF NOT EXISTS titel (

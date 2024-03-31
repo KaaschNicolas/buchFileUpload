@@ -12,7 +12,7 @@ export class DatabaseFile {
   @Column({
     type: 'bytea',
   })
-  data: Uint8Array | undefined;
+  data?: Uint8Array;
 
   @OneToOne(() => Buch, (buch) => buch.file)
   @JoinColumn({ name: 'buch_id' })

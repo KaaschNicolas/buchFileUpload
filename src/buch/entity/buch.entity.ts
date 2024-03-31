@@ -153,10 +153,11 @@ export class Buch {
         () => DatabaseFile,
         (databaseFile) => databaseFile.buch,
         {
-        nullable: true
-        }
+            nullable: true,
+            cascade: ['insert', 'remove'],
+        },
     )
-    readonly file?: DatabaseFile;
+    readonly file: DatabaseFile | undefined;
 
     public toString = (): string =>
         JSON.stringify({

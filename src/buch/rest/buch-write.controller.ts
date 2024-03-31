@@ -28,11 +28,12 @@ import {
     ApiHeader,
     ApiNoContentResponse,
     ApiOperation,
+    ApiParam,
     ApiPreconditionFailedResponse,
     ApiResponse,
     ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard, Roles } from 'nest-keycloak-connect';
+import { AuthGuard, Public, Roles } from 'nest-keycloak-connect';
 import {
     Body,
     Controller,
@@ -59,6 +60,7 @@ import { type Titel } from '../entity/titel.entity.js';
 import { getBaseUri } from './getBaseUri.js';
 import { getLogger } from '../../logger/logger.js';
 import { paths } from '../../config/paths.js';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 const MSG_FORBIDDEN = 'Kein Token mit ausreichender Berechtigung vorhanden';
 /**
@@ -114,17 +116,27 @@ export class BuchWriteController {
         return res.location(location).send();
     }
 
-    @Post()
-    @Roles({ roles: ['admin', 'user']})
+    @Post(':id')
+    @Public()
+    //@Roles({ roles: ['admin', 'user']})
     @ApiOperation({ summary: 'Datei zu Bild hochladen' })
+    @ApiParam({
+        name: 'id',
+        description: 'Z.B. 1',
+    })
     @ApiCreatedResponse({ description: 'Erfolgreich hinzugefügt' })
     @ApiBadRequestResponse({ description: 'Fehlerhafte Datie'})
     @ApiForbiddenResponse({ description: MSG_FORBIDDEN })
+    @UseInterceptors(FileInterceptor('file'))
     async addFile(
         @Param('id') id: number,
-        @UploadedFile() file: Express.Multer.File
-    ) {
-        return await this.#service.addFile(id, file.buffer, file.originalname);
+        @UploadedFile() file: Express.Multer.File,
+        @Res() res: Response,
+    ): Promise<Response> {
+        this.#logger.debug('addFile: file=%s', file.filename);
+
+        await this.#service.addFile(id, file.buffer, file.originalname);
+        return res.send();
     }
 
     /**
@@ -256,6 +268,7 @@ export class BuchWriteController {
             abbildungen,
             erzeugt: new Date(),
             aktualisiert: new Date(),
+            file: undefined,
         };
 
         // Rueckwaertsverweise
@@ -283,6 +296,7 @@ export class BuchWriteController {
             abbildungen: undefined,
             erzeugt: undefined,
             aktualisiert: new Date(),
+            file: undefined,
         };
     }
 }

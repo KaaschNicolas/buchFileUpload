@@ -101,19 +101,18 @@ export class BuchWriteService {
         const buch = await this.#readService.findById({ id: buchId });
 
         const newFile = await this.#fileRepo.create({
-            filename,
+            filename: filename,
             data: dataBuffer,
+            buch: buch,
         });
-        const fileDb = await this.#fileRepo.save(newFile);
-        this.#logger.debug('addFile: databaseFile:%o', fileDb);
-        
-        
+        this.#logger.debug('newFile buch:%o', newFile.buch?.file);
         const updatedBuch = await this.#repo.save({
             id: buch.id,
-            databaseFile: fileDb,
+            databaseFile: newFile,
         });
         this.#logger.debug('addFile: buchId:%s', updatedBuch.id);
-        
+        const buch1 = await this.#readService.findById({ id: buchId });
+        this.#logger.debug('buch1 file:%o', buch1.file);
         return newFile;
     }
 

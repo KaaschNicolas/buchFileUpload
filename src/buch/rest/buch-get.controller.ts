@@ -43,6 +43,7 @@ import {
     Query,
     Req,
     Res,
+    StreamableFile,
     UseInterceptors,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
@@ -54,6 +55,7 @@ import { type Titel } from '../entity/titel.entity.js';
 import { getBaseUri } from './getBaseUri.js';
 import { getLogger } from '../../logger/logger.js';
 import { paths } from '../../config/paths.js';
+import { Readable } from 'stream';
 
 /** href-Link für HATEOAS */
 export interface Link {
@@ -246,6 +248,42 @@ export class BuchGetController {
         return res.contentType(APPLICATION_HAL_JSON).json(buchModel);
     }
 
+    @Get('/file/:id')
+    @Public()
+    @ApiOperation({ description: 'Suche nach Datei mit der Buch-ID' })
+    @ApiParam({
+        name: 'id',
+        description: 'Z.B. 1',
+    })
+    @ApiNotFoundResponse({ description: 'Keine Datei zur Buch-ID gefunden' })
+    @ApiOkResponse({ description: 'Die Datei wurde gefunden' })
+    async getFileById(
+        @Param('id') idStr: number,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        this.#logger.debug('getFileById: buchId:%s', idStr);
+        
+        const id = Number(idStr);
+        if (!Number.isInteger(id)) {
+            this.#logger.debug('getById: not isInteger()');
+            throw new NotFoundException(`Die Buch-ID ${idStr} ist ungueltig.`);
+        }
+
+        const databaseFile = await this.#service.findFileByBuchId(id);
+
+        if (databaseFile === undefined || databaseFile.data === undefined) {
+            throw new NotFoundException('Keine Datei gefunden.');
+        }
+
+        const stream = Readable.from(databaseFile.data);
+        
+        res.set({
+            'Content-Disposition': `inline; filename="${databaseFile.filename}"`,
+            'Content-Type': 'image',
+        });
+
+        return new StreamableFile(stream);
+    }
     /**
      * Bücher werden mit Query-Parametern asynchron gesucht. Falls es mindestens
      * ein solches Buch gibt, wird der Statuscode `200` (`OK`) gesetzt. Im Rumpf
@@ -321,6 +359,7 @@ export class BuchGetController {
             homepage: buch.homepage,
             schlagwoerter: buch.schlagwoerter,
             titel: titelModel,
+            file: buch.file,
             _links: links,
         };
 

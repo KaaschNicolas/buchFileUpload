@@ -117,12 +117,16 @@ export class BuchReadService {
         return buch;
     }
 
-    async getFileById(fileId: number) {
-        const file = await this.#fileRepo.findOne({where: {
-            id : fileId
-        }});
+    async findFileByBuchId(buchId: number) {
 
-        if (!file) {
+        const buch = await this.findById({ id: buchId });
+        this.#logger.debug(buch.file);
+        const file = await this.#fileRepo.findOne({where: {
+            buch : { id: buchId }
+        },
+        });
+
+        if (file === null) {
             throw new NotFoundException();
         }
 

@@ -144,6 +144,7 @@ export class BuchMutationResolver {
             abbildungen,
             erzeugt: new Date(),
             aktualisiert: new Date(),
+            file: undefined,
         };
 
         // Rueckwaertsverweis
@@ -168,6 +169,7 @@ export class BuchMutationResolver {
             abbildungen: undefined,
             erzeugt: undefined,
             aktualisiert: new Date(),
+            file: undefined,
         };
     }
 

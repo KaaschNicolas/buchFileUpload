@@ -26,7 +26,7 @@ import { QueryBuilder } from './query-builder.js';
 import { type Suchkriterien } from './suchkriterien.js';
 import { getLogger } from '../../logger/logger.js';
 import { Repository } from 'typeorm';
-import { DatabaseFile } from '../entity/databaseFile.entity.js';
+import { BuchFile } from '../entity/buchFile.entity.js';
 import { InjectRepository } from '@nestjs/typeorm';
 
 /**
@@ -53,11 +53,11 @@ export class BuchReadService {
 
     readonly #logger = getLogger(BuchReadService.name);
 
-    readonly #fileRepo: Repository<DatabaseFile>;
+    readonly #fileRepo: Repository<BuchFile>;
 
     constructor(
         queryBuilder: QueryBuilder,
-        @InjectRepository(DatabaseFile) fileRepo : Repository<DatabaseFile>,
+        @InjectRepository(BuchFile) fileRepo : Repository<BuchFile>,
     ) {
         //const buchDummy = new Buch();
         this.#buchProps = Object.getOwnPropertyNames(new Buch()); //TODO hier Objekt direkt erzeugen?

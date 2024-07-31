@@ -35,7 +35,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MailService } from '../../mail/mail.service.js';
 import { Titel } from '../entity/titel.entity.js';
 import { getLogger } from '../../logger/logger.js';
-import { DatabaseFile } from '../entity/databaseFile.entity.js';
+import { BuchFile } from '../entity/buchFile.entity.js';
 
 /** Typdefinitionen zum Aktualisieren eines Buches mit `update`. */
 export interface UpdateParams {
@@ -57,7 +57,7 @@ export class BuchWriteService {
 
     readonly #repo: Repository<Buch>;
 
-    readonly #fileRepo: Repository<DatabaseFile>;
+    readonly #fileRepo: Repository<BuchFile>;
 
     readonly #readService: BuchReadService;
 
@@ -67,7 +67,7 @@ export class BuchWriteService {
 
     constructor(
         @InjectRepository(Buch) repo: Repository<Buch>,
-        @InjectRepository(DatabaseFile) fileRepo: Repository<DatabaseFile>,
+        @InjectRepository(BuchFile) fileRepo: Repository<BuchFile>,
         readService: BuchReadService,
         mailService: MailService,
     ) {

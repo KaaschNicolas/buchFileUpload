@@ -54,7 +54,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { DecimalTransformer } from './decimal-transformer.js';
 import { Titel } from './titel.entity.js';
 import { dbType } from '../../config/db.js';
-import { DatabaseFile } from './databaseFile.entity.js';
+import { BuchFile } from './buchFile.entity.js';
 
 /**
  * Alias-Typ für gültige Strings bei der Art eines Buches.
@@ -150,13 +150,13 @@ export class Buch {
     readonly aktualisiert: Date | undefined;
 
     @OneToOne(
-        () => DatabaseFile,
-        (databaseFile) => databaseFile.buch,
+        () => BuchFile,
+        (buchFile) => buchFile.buch,
         {
             cascade: ['insert', 'remove'],
         },
     )
-    readonly file: DatabaseFile | undefined;
+    readonly file: BuchFile | undefined;
 
     public toString = (): string =>
         JSON.stringify({
